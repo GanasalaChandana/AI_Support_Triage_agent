@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/tickets")
 public class TicketController {
@@ -41,6 +43,13 @@ public class TicketController {
                 .map(TicketResponse::from)
                 .map(ResponseEntity::ok)
                 .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping
+    public List<TicketResponse> listTickets() {
+        return ticketRepository.findAllByOrderByCreatedAtDesc().stream()
+                .map(TicketResponse::from)
+                .toList();
     }
 
     private TicketStatus mapStatus(TriageDecision.Action action) {

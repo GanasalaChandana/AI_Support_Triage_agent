@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>AI Support Triage Agent</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --panel: #171b21;
+    --border: #2a2f38;
+    --text: #e6e9ef;
+    --muted: #9aa4b2;
+    --accent: #5b8cff;
+    --reply: #2ecc71;
+    --escalate: #e74c3c;
+    --ticket: #f1c40f;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    padding: 2rem 1rem 4rem;
+  }
+  .wrap { max-width: 760px; margin: 0 auto; }
+  h1 { font-size: 1.4rem; margin-bottom: 0.25rem; }
+  .sub { color: var(--muted); margin-top: 0; margin-bottom: 1.5rem; font-size: 0.9rem; }
+  .panel {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+  }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 0.3rem; margin-top: 0.9rem; }
+  label:first-child { margin-top: 0; }
+  input, textarea {
+    width: 100%;
+    background: #0f1216;
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    padding: 0.55rem 0.7rem;
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  textarea { min-height: 80px; resize: vertical; }
+  button {
+    margin-top: 1.1rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 6px;
+    padding: 0.6rem 1.2rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  button:disabled { opacity: 0.6; cursor: default; }
+  .badge {
+    display: inline-block;
+    padding: 0.15rem 0.55rem;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #0f1216;
+  }
+  .badge.REPLIED { background: var(--reply); }
+  .badge.ESCALATED { background: var(--escalate); color: white; }
+  .badge.TICKET_CREATED { background: var(--ticket); }
+  .badge.OPEN { background: var(--muted); }
+  .result-row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 0.5rem; }
+  .field-label { font-size: 0.75rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.03em; margin-bottom: 0.2rem; }
+  .field-value { font-size: 0.9rem; margin-bottom: 0.8rem; white-space: pre-wrap; }
+  table { width: 100%; border-collapse: collapse; font-size: 0.85rem; }
+  th, td { text-align: left; padding: 0.5rem 0.4rem; border-bottom: 1px solid var(--border); }
+  th { color: var(--muted); font-weight: 600; font-size: 0.75rem; text-transform: uppercase; }
+  .empty { color: var(--muted); font-size: 0.85rem; }
+  .error { color: var(--escalate); font-size: 0.85rem; margin-top: 0.6rem; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>AI Support Triage Agent</h1>
+  <p class="sub">Submit a support ticket and watch the agent retrieve context, call tools, and decide how to handle it.</p>
+
+  <div class="panel">
+    <form id="ticket-form">
+      <label for="customerId">Customer ID</label>
+      <input id="customerId" placeholder="CUST-1" required>
+
+      <label for="subject">Subject</label>
+      <input id="subject" placeholder="Where is my order?" required>
+
+      <label for="body">Body</label>
+      <textarea id="body" placeholder="My order ORD-1003 was supposed to arrive days ago, still nothing." required></textarea>
+
+      <button type="submit" id="submit-btn">Submit ticket</button>
+      <div class="error" id="error" style="display:none;"></div>
+    </form>
+  </div>
+
+  <div class="panel" id="result-panel" style="display:none;">
+    <div class="result-row">
+      <strong>Agent decision</strong>
+      <span class="badge" id="result-badge"></span>
+    </div>
+    <div class="field-label">Confidence</div>
+    <div class="field-value" id="result-confidence"></div>
+    <div class="field-label">Draft response</div>
+    <div class="field-value" id="result-draft"></div>
+    <div class="field-label">Reasoning</div>
+    <div class="field-value" id="result-reasoning"></div>
+  </div>
+
+  <div class="panel">
+    <strong>Recent tickets</strong>
+    <div id="history"></div>
+  </div>
+</div>
+
+<script>
+  const form = document.getElementById('ticket-form');
+  const submitBtn = document.getElementById('submit-btn');
+  const errorBox = document.getElementById('error');
+  const resultPanel = document.getElementById('result-panel');
+
+  async function loadHistory() {
+    const historyEl = document.getElementById('history');
+    try {
+      const res = await fetch('/tickets');
+      const tickets = await res.json();
+      if (!tickets.length) {
+        historyEl.innerHTML = '<p class="empty">No tickets yet.</p>';
+        return;
+      }
+      const rows = tickets.map(t => `
+        <tr>
+          <td>#${t.id}</td>
+          <td>${escapeHtml(t.subject)}</td>
+          <td><span class="badge ${t.status}">${t.status}</span></td>
+          <td>${t.confidence ?? '-'}</td>
+        </tr>
+      `).join('');
+      historyEl.innerHTML = `
+        <table>
+          <thead><tr><th>ID</th><th>Subject</th><th>Status</th><th>Confidence</th></tr></thead>
+          <tbody>${rows}</tbody>
+        </table>
+      `;
+    } catch (e) {
+      historyEl.innerHTML = '<p class="error">Failed to load history.</p>';
+    }
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str ?? '';
+    return div.innerHTML;
+  }
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    errorBox.style.display = 'none';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Thinking...';
+
+    const payload = {
+      customerId: document.getElementById('customerId').value,
+      subject: document.getElementById('subject').value,
+      body: document.getElementById('body').value
+    };
+
+    try {
+      const res = await fetch('/tickets', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.message || `Request failed (${res.status})`);
+      }
+
+      const decision = await res.json();
+      document.getElementById('result-badge').textContent = decision.status;
+      document.getElementById('result-badge').className = 'badge ' + decision.status;
+      document.getElementById('result-confidence').textContent = decision.confidence;
+      document.getElementById('result-draft').textContent = decision.draftResponse || '(none)';
+      document.getElementById('result-reasoning').textContent = decision.reasoning;
+      resultPanel.style.display = 'block';
+
+      await loadHistory();
+    } catch (err) {
+      errorBox.textContent = err.message;
+      errorBox.style.display = 'block';
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Submit ticket';
+    }
+  });
+
+  loadHistory();
+</script>
+</body>
+</html>

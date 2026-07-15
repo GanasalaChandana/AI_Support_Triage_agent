@@ -2,6 +2,7 @@ target/
 .idea/
 *.iml
 .vscode/
+.claude/
 .classpath
 .project
 .settings/
