@@ -42,6 +42,22 @@ docker build -t ai-support-triage-agent .
 docker run -p 8080:8080 -e GROQ_API_KEY=gsk_... ai-support-triage-agent
 ```
 
+## Deploy to Render
+
+This repo includes a `render.yaml` for one-click deploy:
+
+1. On [render.com](https://render.com), click **New > Blueprint** and connect
+   this GitHub repo.
+2. Render reads `render.yaml` and provisions the service automatically
+   (Docker env, free plan).
+3. Set the `GROQ_API_KEY` env var in the Render dashboard (marked
+   `sync: false` in the blueprint, so it won't be committed to the repo).
+
+Note: the free plan spins down after ~15 min idle, so the first request after
+a while takes 30-50s to wake up. The H2 database is in-memory, so ticket
+history resets on every restart/redeploy — expected for a demo, not meant for
+production data.
+
 ## Try it
 
 Open [http://localhost:8080](http://localhost:8080) in a browser for a simple
