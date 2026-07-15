@@ -2,6 +2,9 @@
 
 [![CI](https://github.com/GanasalaChandana/AI_Support_Triage_agent/actions/workflows/ci.yml/badge.svg)](https://github.com/GanasalaChandana/AI_Support_Triage_agent/actions/workflows/ci.yml)
 
+**Live demo:** [ai-support-triage-agent.onrender.com](https://ai-support-triage-agent.onrender.com)
+(free tier — first request after ~15 min idle takes 30-50s to wake up)
+
 A Spring AI agent that triages incoming customer support tickets: it retrieves
 relevant knowledge-base context (RAG), calls tools to look up orders/accounts,
 and decides whether to auto-reply, file a Jira ticket, or escalate to a human
@@ -63,10 +66,11 @@ production data.
 
 ## Try it
 
-Open [http://localhost:8080](http://localhost:8080) in a browser for a simple
-UI — submit a ticket and see the agent's decision plus a live history table.
+Open the [live demo](https://ai-support-triage-agent.onrender.com) or
+[http://localhost:8080](http://localhost:8080) if running locally — submit a
+ticket and see the agent's decision plus a live history table.
 
-Or via curl:
+Or via curl (swap in the live URL if not running locally):
 
 ```bash
 curl -X POST http://localhost:8080/tickets \
