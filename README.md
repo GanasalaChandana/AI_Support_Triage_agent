@@ -1,5 +1,7 @@
 # AI Support Triage Agent
 
+[![CI](https://github.com/GanasalaChandana/AI_Support_Triage_agent/actions/workflows/ci.yml/badge.svg)](https://github.com/GanasalaChandana/AI_Support_Triage_agent/actions/workflows/ci.yml)
+
 A Spring AI agent that triages incoming customer support tickets: it retrieves
 relevant knowledge-base context (RAG), calls tools to look up orders/accounts,
 and decides whether to auto-reply, file a Jira ticket, or escalate to a human
@@ -32,6 +34,13 @@ access once.
 Note: `llama-3.3-70b-versatile` has solid tool-calling support, but if it ever
 fumbles a tool call, `llama-3.1-8b-instant` is a faster/smaller fallback (set
 `spring.ai.openai.chat.options.model`).
+
+## Run with Docker
+
+```bash
+docker build -t ai-support-triage-agent .
+docker run -p 8080:8080 -e GROQ_API_KEY=gsk_... ai-support-triage-agent
+```
 
 ## Try it
 
