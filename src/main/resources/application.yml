@@ -10,7 +10,7 @@ spring:
           model: llama-3.3-70b-versatile
           temperature: 0.3
       embedding:
-        enabled: false # use the local transformers embedding model instead; Groq has no embeddings API
+        enabled: false # Groq has no embeddings API; Cohere is used instead (see cohere.* below)
   datasource:
     url: jdbc:h2:mem:triagedb
     driver-class-name: org.h2.Driver
@@ -21,6 +21,10 @@ spring:
   h2:
     console:
       enabled: true
+
+cohere:
+  api-key: ${COHERE_API_KEY:}
+  embedding-model: embed-english-v3.0
 
 triage:
   confidence-threshold: 0.7

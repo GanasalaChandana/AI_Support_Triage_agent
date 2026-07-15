@@ -13,23 +13,25 @@ sure.
 - Spring Boot 3.3 + Spring AI 1.0
 - Groq (free tier, OpenAI-compatible API) running Llama 3.3 70B for agent
   reasoning and tool calling
-- Local ONNX embedding model (`spring-ai-starter-model-transformers`) for RAG
-  — no embedding API key needed (Groq has no embeddings API)
+- Cohere's free embed API for RAG (Groq has no embeddings API) via a small
+  custom `EmbeddingModel` ([`CohereEmbeddingModel`](src/main/java/com/triage/rag/CohereEmbeddingModel.java))
+  — no heavy local model runtime, so it fits free-tier cloud memory limits
 - In-memory `SimpleVectorStore` seeded with mock KB articles on startup
 - H2 in-memory database for ticket storage
 
 ## Setup
 
-1. Create a free API key at [console.groq.com/keys](https://console.groq.com/keys)
+1. Create a free Groq API key at [console.groq.com/keys](https://console.groq.com/keys)
    (no credit card required).
-2. Set it as an env var and run:
+2. Create a free Cohere trial API key at
+   [dashboard.cohere.com/api-keys](https://dashboard.cohere.com/api-keys) (no
+   credit card required) — used only for embeddings.
+3. Set both as env vars and run:
    ```bash
    export GROQ_API_KEY=gsk_...
+   export COHERE_API_KEY=...
    mvn spring-boot:run
    ```
-
-First run also downloads the local embedding model files, so it needs internet
-access once.
 
 Note: `llama-3.3-70b-versatile` has solid tool-calling support, but if it ever
 fumbles a tool call, `llama-3.1-8b-instant` is a faster/smaller fallback (set
@@ -39,7 +41,7 @@ fumbles a tool call, `llama-3.1-8b-instant` is a faster/smaller fallback (set
 
 ```bash
 docker build -t ai-support-triage-agent .
-docker run -p 8080:8080 -e GROQ_API_KEY=gsk_... ai-support-triage-agent
+docker run -p 8080:8080 -e GROQ_API_KEY=gsk_... -e COHERE_API_KEY=... ai-support-triage-agent
 ```
 
 ## Deploy to Render
@@ -50,8 +52,9 @@ This repo includes a `render.yaml` for one-click deploy:
    this GitHub repo.
 2. Render reads `render.yaml` and provisions the service automatically
    (Docker env, free plan).
-3. Set the `GROQ_API_KEY` env var in the Render dashboard (marked
-   `sync: false` in the blueprint, so it won't be committed to the repo).
+3. Set the `GROQ_API_KEY` and `COHERE_API_KEY` env vars in the Render
+   dashboard (marked `sync: false` in the blueprint, so they won't be
+   committed to the repo).
 
 Note: the free plan spins down after ~15 min idle, so the first request after
 a while takes 30-50s to wake up. The H2 database is in-memory, so ticket
