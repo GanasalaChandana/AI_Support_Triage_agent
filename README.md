@@ -44,6 +44,11 @@ docker run -p 8080:8080 -e GROQ_API_KEY=gsk_... ai-support-triage-agent
 
 ## Try it
 
+Open [http://localhost:8080](http://localhost:8080) in a browser for a simple
+UI — submit a ticket and see the agent's decision plus a live history table.
+
+Or via curl:
+
 ```bash
 curl -X POST http://localhost:8080/tickets \
   -H "Content-Type: application/json" \
