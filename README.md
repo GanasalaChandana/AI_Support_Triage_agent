@@ -70,6 +70,10 @@ Open the [live demo](https://ai-support-triage-agent.onrender.com) or
 [http://localhost:8080](http://localhost:8080) if running locally — submit a
 ticket and see the agent's decision plus a live history table.
 
+Interactive API docs (Swagger UI) are at
+[`/swagger-ui.html`](https://ai-support-triage-agent.onrender.com/swagger-ui.html)
+if you'd rather explore/try the endpoints directly.
+
 Or via curl (swap in the live URL if not running locally):
 
 ```bash

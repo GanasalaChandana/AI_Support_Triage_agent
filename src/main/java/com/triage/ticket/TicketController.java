@@ -2,6 +2,8 @@ package com.triage.ticket;
 
 import com.triage.agent.TriageAgentService;
 import com.triage.agent.TriageDecision;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -11,6 +13,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/tickets")
+@Tag(name = "Tickets", description = "Submit support tickets and let the agent triage them")
 public class TicketController {
 
     private final TicketRepository ticketRepository;
@@ -21,6 +24,8 @@ public class TicketController {
         this.triageAgentService = triageAgentService;
     }
 
+    @Operation(summary = "Submit a ticket",
+            description = "Runs the agent (RAG + tool-calling) and returns its triage decision. Rate-limited to 5/min per IP.")
     @PostMapping
     public ResponseEntity<TicketResponse> submitTicket(@Valid @RequestBody TicketRequest request) {
         Ticket ticket = new Ticket(request.customerId(), request.subject(), request.body());
@@ -37,6 +42,7 @@ public class TicketController {
         return ResponseEntity.status(HttpStatus.CREATED).body(TicketResponse.from(ticket));
     }
 
+    @Operation(summary = "Get a ticket by ID")
     @GetMapping("/{id}")
     public ResponseEntity<TicketResponse> getTicket(@PathVariable Long id) {
         return ticketRepository.findById(id)
@@ -45,6 +51,7 @@ public class TicketController {
                 .orElseGet(() -> ResponseEntity.notFound().build());
     }
 
+    @Operation(summary = "List all tickets, most recent first")
     @GetMapping
     public List<TicketResponse> listTickets() {
         return ticketRepository.findAllByOrderByCreatedAtDesc().stream()
