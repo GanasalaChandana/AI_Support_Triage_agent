@@ -1,21 +1,25 @@
 package com.triage.agent;
 
+import com.triage.integration.JiraClient;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
 
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicInteger;
 
 /**
- * Mocked integrations so the agent loop can be built and demoed without wiring
- * up real order/ticketing systems. Swap method bodies for real API calls later
- * (Jira REST client, orders service, etc.) without touching the agent logic.
+ * Order/account lookups stay mocked - no meaningful real equivalent exists
+ * for a demo. Jira ticket creation calls a real Jira Cloud project (see
+ * JiraClient), since that's an integration a free account can genuinely back.
  */
 @Component
 public class TriageTools {
 
-    private final AtomicInteger jiraCounter = new AtomicInteger(1000);
+    private final JiraClient jiraClient;
+
+    public TriageTools(JiraClient jiraClient) {
+        this.jiraClient = jiraClient;
+    }
 
     private static final Map<String, String> MOCK_ORDERS = Map.of(
             "ORD-1001", "Shipped on 2026-07-10, carrier UPS, expected delivery 2026-07-15",
@@ -43,8 +47,12 @@ public class TriageTools {
     public String createJiraTicket(
             @ToolParam(description = "Short summary of the issue") String summary,
             @ToolParam(description = "Priority: LOW, MEDIUM, HIGH, or URGENT") String priority) {
-        String jiraId = "SUP-" + jiraCounter.incrementAndGet();
-        return "Created Jira ticket " + jiraId + " with priority " + priority + ": " + summary;
+        try {
+            String issueKey = jiraClient.createIssue(summary, priority);
+            return "Created Jira ticket " + issueKey + " with priority " + priority + ": " + summary;
+        } catch (Exception e) {
+            return "Failed to create a Jira ticket (" + e.getMessage() + "). Escalate to a human instead.";
+        }
     }
 
     @Tool(description = "Escalate the ticket to a human agent, e.g. for account suspensions or fraud")

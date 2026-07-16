@@ -29,10 +29,17 @@ sure.
 2. Create a free Cohere trial API key at
    [dashboard.cohere.com/api-keys](https://dashboard.cohere.com/api-keys) (no
    credit card required) — used only for embeddings.
-3. Set both as env vars and run:
+3. Create a free [Jira Cloud](https://www.atlassian.com/software/jira/free)
+   site, an [API token](https://id.atlassian.com/manage-profile/security/api-tokens),
+   and note your project's key (e.g. `SUP`) — used for real ticket creation.
+4. Set all as env vars and run:
    ```bash
    export GROQ_API_KEY=gsk_...
    export COHERE_API_KEY=...
+   export JIRA_BASE_URL=https://your-site.atlassian.net
+   export JIRA_EMAIL=you@example.com
+   export JIRA_API_TOKEN=...
+   export JIRA_PROJECT_KEY=SUP
    mvn spring-boot:run
    ```
 
@@ -44,7 +51,11 @@ fumbles a tool call, `llama-3.1-8b-instant` is a faster/smaller fallback (set
 
 ```bash
 docker build -t ai-support-triage-agent .
-docker run -p 8080:8080 -e GROQ_API_KEY=gsk_... -e COHERE_API_KEY=... ai-support-triage-agent
+docker run -p 8080:8080 \
+  -e GROQ_API_KEY=gsk_... -e COHERE_API_KEY=... \
+  -e JIRA_BASE_URL=https://your-site.atlassian.net -e JIRA_EMAIL=you@example.com \
+  -e JIRA_API_TOKEN=... -e JIRA_PROJECT_KEY=SUP \
+  ai-support-triage-agent
 ```
 
 ## Deploy to Render
@@ -55,9 +66,9 @@ This repo includes a `render.yaml` for one-click deploy:
    this GitHub repo.
 2. Render reads `render.yaml` and provisions the service automatically
    (Docker env, free plan).
-3. Set the `GROQ_API_KEY` and `COHERE_API_KEY` env vars in the Render
-   dashboard (marked `sync: false` in the blueprint, so they won't be
-   committed to the repo).
+3. Set `GROQ_API_KEY`, `COHERE_API_KEY`, `JIRA_BASE_URL`, `JIRA_EMAIL`,
+   `JIRA_API_TOKEN`, and `JIRA_PROJECT_KEY` in the Render dashboard (marked
+   `sync: false` in the blueprint, so they won't be committed to the repo).
 
 Note: the free plan spins down after ~15 min idle, so the first request after
 a while takes 30-50s to wake up. The H2 database is in-memory, so ticket
@@ -136,10 +147,13 @@ no password) — all four rows matched the API responses exactly.
 ## What's mocked vs. real
 
 - **Real**: the agent loop, RAG retrieval, tool-calling, structured decision
-  output, confidence guardrail.
+  output, confidence guardrail, and Jira ticket creation
+  ([`JiraClient`](src/main/java/com/triage/integration/JiraClient.java) calls
+  a live Jira Cloud project via its REST API).
 - **Mocked** (see [`TriageTools`](src/main/java/com/triage/agent/TriageTools.java)):
-  order lookup, account status, Jira ticket creation. Swap these method
-  bodies for real API clients without touching the agent logic.
+  order lookup and account status — no meaningful real equivalent exists for
+  a demo, but the method bodies are swappable for real API clients without
+  touching the agent logic.
 
 ## Project layout
 
