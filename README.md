@@ -119,6 +119,16 @@ Persistence confirmed via `GET /tickets/{id}` and direct H2 console inspection
 (`http://localhost:8080/h2-console`, JDBC URL `jdbc:h2:mem:triagedb`, user `sa`,
 no password) — all four rows matched the API responses exactly.
 
+## Reliability
+
+- **Rate limiting**: `POST /tickets` is capped at 5 requests/minute per IP
+  ([`RateLimitFilter`](src/main/java/com/triage/config/RateLimitFilter.java))
+  to protect the free Groq/Cohere quotas on the public deployment from abuse.
+- **Upstream errors**: Groq's free tier caps tokens-per-minute, and a burst of
+  requests can hit that limit in practice (observed while testing this repo).
+  [`ApiExceptionHandler`](src/main/java/com/triage/config/ApiExceptionHandler.java)
+  catches that and returns a clean `503` instead of a raw `500`.
+
 ## What's mocked vs. real
 
 - **Real**: the agent loop, RAG retrieval, tool-calling, structured decision

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.triage.agent.TriageAgentService;
 import com.triage.agent.TriageDecision;
 import org.junit.jupiter.api.Test;
+import org.springframework.ai.retry.NonTransientAiException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -69,5 +70,20 @@ class TicketControllerTest {
 
         mockMvc.perform(get("/tickets/99"))
                 .andExpect(status().isNotFound());
+    }
+
+    @Test
+    void submitTicket_returns503WhenAiProviderRateLimited() throws Exception {
+        when(triageAgentService.triage(any(Ticket.class)))
+                .thenThrow(new NonTransientAiException("HTTP 429 - rate limit exceeded"));
+
+        TicketRequest request = new TicketRequest("CUST-1", "Where is my order?", "ORD-1001 status?");
+
+        mockMvc.perform(post("/tickets")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(objectMapper.writeValueAsString(request)))
+                .andExpect(status().isServiceUnavailable())
+                .andExpect(jsonPath("$.error").value(
+                        "The AI provider is temporarily rate-limited or unavailable. Please try again shortly."));
     }
 }
