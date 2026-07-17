@@ -51,8 +51,10 @@ public class TriageTools {
     public String createJiraTicket(
             @ToolParam(description = "Short summary of the issue") String summary,
             @ToolParam(description = "Priority: LOW, MEDIUM, HIGH, or URGENT") String priority) {
+        log.info("createJiraTicket invoked: summary='{}', priority='{}'", summary, priority);
         try {
             String issueKey = jiraClient.createIssue(summary, priority);
+            log.info("Jira ticket created successfully: {}", issueKey);
             return "Created Jira ticket " + issueKey + " with priority " + priority + ": " + summary;
         } catch (Exception e) {
             log.error("Jira ticket creation failed for summary '{}'", summary, e);
