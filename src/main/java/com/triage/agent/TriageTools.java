@@ -1,6 +1,8 @@
 package com.triage.agent;
 
 import com.triage.integration.JiraClient;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.ai.tool.annotation.Tool;
 import org.springframework.ai.tool.annotation.ToolParam;
 import org.springframework.stereotype.Component;
@@ -14,6 +16,8 @@ import java.util.Map;
  */
 @Component
 public class TriageTools {
+
+    private static final Logger log = LoggerFactory.getLogger(TriageTools.class);
 
     private final JiraClient jiraClient;
 
@@ -51,6 +55,7 @@ public class TriageTools {
             String issueKey = jiraClient.createIssue(summary, priority);
             return "Created Jira ticket " + issueKey + " with priority " + priority + ": " + summary;
         } catch (Exception e) {
+            log.error("Jira ticket creation failed for summary '{}'", summary, e);
             return "Failed to create a Jira ticket (" + e.getMessage() + "). Escalate to a human instead.";
         }
     }
