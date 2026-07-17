@@ -143,6 +143,15 @@ no password) — all four rows matched the API responses exactly.
   requests can hit that limit in practice (observed while testing this repo).
   [`ApiExceptionHandler`](src/main/java/com/triage/config/ApiExceptionHandler.java)
   catches that and returns a clean `503` instead of a raw `500`.
+- **Known limitation - cold start + Jira**: the very first request right after
+  Render's free instance wakes from sleep can occasionally report
+  `TICKET_CREATED` without a real Jira issue being created. Cold-start
+  resource contention appears to make the outbound Jira HTTP call fail while
+  the Groq call still succeeds, so the model writes a plausible confirmation
+  message even though the tool call underneath failed silently (now logged in
+  [`TriageTools`](src/main/java/com/triage/agent/TriageTools.java) for
+  diagnosis). Verified this only affects cold-start requests - warm requests
+  create real issues reliably (KAN-6, KAN-7, KAN-10 in testing).
 
 ## What's mocked vs. real
 
