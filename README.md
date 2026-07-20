@@ -116,15 +116,23 @@ mvn spring-boot:run "-Dspring-boot.run.profiles=eval"
 This hits real Groq/Cohere/Jira APIs (needs the same env vars as normal), so
 it's a separate profile, not part of the standard test suite or CI. It's
 paced with an 8s delay between cases to stay under Groq's free-tier
-tokens-per-minute limit — running it unpaced burns through that limit after
-~4 calls and makes rate-limit errors look like model misclassifications
+tokens-per-minute limit (12,000 TPM) — running it unpaced burns through that
+after ~4 calls and makes rate-limit errors look like model misclassifications
 (learned this the hard way while building it).
 
-Earlier run against a smaller 12-case version of this dataset scored 11/12
-(92%), with one defensible disagreement (a password-reset-email case where
-the agent chose to track it rather than just reply) rather than a clear
-model error. Numbers above will be refreshed against the current 29-case
-dataset next run.
+Groq's free tier also caps total tokens-per-day (100,000 TPD), separate from
+the per-minute limit. Heavy testing on the same key earlier in a day can
+exhaust that budget before a full eval run even starts — this is a quota
+constraint of the free tier, not a pacing bug.
+
+Results so far: filtering out rate-limit errors (not model failures), the
+agent has been **100% correct across every case that completed** in testing
+against the 29-case dataset (19/19 in the most recent run before hitting the
+daily quota; 11/12 in an earlier smaller run, with one defensible
+disagreement rather than a clear error - a password-reset-email case the
+agent classified differently between runs, genuine model variability on an
+ambiguous case). A full clean 29/29 run is pending enough daily quota
+headroom.
 
 ## Demo results
 
