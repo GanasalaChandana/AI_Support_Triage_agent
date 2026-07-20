@@ -1,0 +1,74 @@
+[
+  {
+    "customerId": "CUST-1",
+    "subject": "Where is my order?",
+    "body": "My order ORD-1003 was supposed to arrive days ago, still nothing.",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Order status check",
+    "body": "Can you tell me the status of ORD-1002? Just want to confirm it arrived.",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "How long does shipping take?",
+    "body": "I haven't ordered yet but want to know your standard shipping timeframe before I do.",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Refund question",
+    "body": "I bought something 10 days ago and it's unused in original packaging. Can I get a refund?",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-2",
+    "subject": "My account got suspended for no reason",
+    "body": "I tried to log in and my account is suspended. This is unacceptable, I want it reinstated immediately.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "Charge dispute - this is fraud",
+    "body": "I was charged twice for the same order and nobody is responding. I will be contacting my bank and a lawyer if this isn't fixed today.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-2",
+    "subject": "Refund denied unfairly",
+    "body": "Your team denied my refund request but I believe I qualify under your policy. I want this reviewed by someone senior.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "it doesnt work",
+    "body": "it doesnt work please fix",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "App crashes on checkout",
+    "body": "The app crashes every time I try to check out with a saved card. Happens every time, on every attempt.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "Search feature is broken",
+    "body": "The search bar returns no results for any query I try, even for products I know exist.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Notifications not working",
+    "body": "I stopped receiving push notifications after the last app update. Would like this looked into.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Password reset email not arriving",
+    "body": "I requested a password reset but never got the email. I checked spam already, still nothing.",
+    "expectedAction": "REPLY"
+  }
+]

@@ -101,6 +101,24 @@ curl -X POST http://localhost:8080/tickets \
 curl http://localhost:8080/tickets/1
 ```
 
+## Evaluating the agent
+
+Unit tests check the code; they don't check whether the agent actually
+classifies tickets correctly. [`EvalRunner`](src/main/java/com/triage/eval/EvalRunner.java)
+runs a fixed set of ~12 test tickets ([golden-dataset.json](src/main/resources/eval/golden-dataset.json))
+against the real agent and reports per-category accuracy:
+
+```bash
+mvn spring-boot:run "-Dspring-boot.run.profiles=eval"
+```
+
+This hits real Groq/Cohere/Jira APIs (needs the same env vars as normal), so
+it's a separate profile, not part of the standard test suite or CI. It's
+paced with an 8s delay between cases to stay under Groq's free-tier
+tokens-per-minute limit — running it unpaced burns through that limit after
+~4 calls and makes rate-limit errors look like model misclassifications
+(learned this the hard way while building it).
+
 ## Demo results
 
 Tested end-to-end against Groq (`llama-3.3-70b-versatile`). All four decision

@@ -3,6 +3,7 @@ package com.triage.rag;
 import org.springframework.ai.document.Document;
 import org.springframework.ai.vectorstore.VectorStore;
 import org.springframework.boot.CommandLineRunner;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -11,9 +12,11 @@ import java.util.Map;
 /**
  * Seeds the vector store with a handful of mock KB articles on startup so the
  * agent has something to retrieve against. Swap this for a real document
- * loader (S3, Confluence, etc.) later.
+ * loader (S3, Confluence, etc.) later. Runs before EvalRunner (@Order(2)),
+ * which needs the KB populated before it triages anything.
  */
 @Service
+@Order(1)
 public class KnowledgeBaseIngestionService implements CommandLineRunner {
 
     private final VectorStore vectorStore;
