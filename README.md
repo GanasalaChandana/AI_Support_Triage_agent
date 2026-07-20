@@ -24,6 +24,14 @@ sure.
 
 ## Setup
 
+**Prerequisites:** Java 17, Maven 3.9+ (or use the included setup — any recent
+Maven works).
+
+```bash
+git clone https://github.com/GanasalaChandana/AI_Support_Triage_agent.git
+cd AI_Support_Triage_agent
+```
+
 1. Create a free Groq API key at [console.groq.com/keys](https://console.groq.com/keys)
    (no credit card required).
 2. Create a free Cohere trial API key at
@@ -33,6 +41,8 @@ sure.
    site, an [API token](https://id.atlassian.com/manage-profile/security/api-tokens),
    and note your project's key (e.g. `SUP`) — used for real ticket creation.
 4. Set all as env vars and run:
+
+   **macOS/Linux (bash):**
    ```bash
    export GROQ_API_KEY=gsk_...
    export COHERE_API_KEY=...
@@ -42,6 +52,21 @@ sure.
    export JIRA_PROJECT_KEY=SUP
    mvn spring-boot:run
    ```
+
+   **Windows (PowerShell):**
+   ```powershell
+   $env:GROQ_API_KEY = "gsk_..."
+   $env:COHERE_API_KEY = "..."
+   $env:JIRA_BASE_URL = "https://your-site.atlassian.net"
+   $env:JIRA_EMAIL = "you@example.com"
+   $env:JIRA_API_TOKEN = "..."
+   $env:JIRA_PROJECT_KEY = "SUP"
+   mvn spring-boot:run
+   ```
+   Note: env vars set this way only last for the current terminal session —
+   set them again if you open a new terminal.
+
+Once it's running, open [http://localhost:8080](http://localhost:8080).
 
 Note: `llama-3.3-70b-versatile` has solid tool-calling support, but if it ever
 fumbles a tool call, `llama-3.1-8b-instant` is a faster/smaller fallback (set
@@ -57,6 +82,9 @@ docker run -p 8080:8080 \
   -e JIRA_API_TOKEN=... -e JIRA_PROJECT_KEY=SUP \
   ai-support-triage-agent
 ```
+
+(PowerShell: put it all on one line, or use `` ` `` instead of `\` for line
+continuation.)
 
 ## Deploy to Render
 
@@ -151,11 +179,14 @@ paths and persistence verified:
 → {"status":"ESCALATED","confidence":0.9,"draftResponse":"Escalated to human support queue. Reason: account suspension","reasoning":"...requires manual review by the trust & safety team."}
 ```
 
-**TICKET_CREATED** — bug report tracked via mocked Jira tool
+**TICKET_CREATED** — bug report tracked via a real Jira issue
 ```json
 {"customerId": "CUST-3", "subject": "App crashes on checkout", "body": "The app crashes every time I try to check out with a saved card."}
-→ {"status":"TICKET_CREATED","confidence":0.8,"draftResponse":"...ticket for our development team...track the progress...SUP-1001","reasoning":"...requires further investigation and tracking."}
+→ {"status":"TICKET_CREATED","confidence":0.8,"draftResponse":"We've created a ticket for our technical team to investigate...","reasoning":"...requires further investigation and tracking."}
 ```
+This created a real issue in Jira (`KAN-6`, titled "[MEDIUM] App crashes on
+checkout") — confirmed directly on the project board, not just via the API
+response.
 
 **Vague ticket** — model chooses to escalate on its own rather than guess
 ```json
@@ -201,8 +232,18 @@ no password) — all four rows matched the API responses exactly.
 
 ```
 com.triage
-  agent/    TriageAgentService, TriageTools, TriageDecision, ConfidenceGuardrail
-  rag/      VectorStoreConfig, KnowledgeBaseIngestionService
-  ticket/   Ticket entity, repository, controller, DTOs
-  config/   ChatClientConfig (system prompt + tool wiring)
+  agent/        TriageAgentService, TriageTools, TriageDecision, ConfidenceGuardrail
+  rag/          VectorStoreConfig, CohereEmbeddingModel, KnowledgeBaseIngestionService
+  integration/  JiraClient (real Jira Cloud REST API calls)
+  eval/         EvalRunner, EvalCase, golden-dataset.json (agent accuracy harness)
+  ticket/       Ticket entity, repository, controller, DTOs
+  config/       ChatClientConfig, RateLimitFilter, ApiExceptionHandler, OpenApiConfig
+
+src/main/resources/
+  static/index.html   simple web UI (form + history table)
+  eval/golden-dataset.json
+
+Dockerfile            multi-stage build for `docker build`
+render.yaml            one-click Render Blueprint deploy config
+.github/workflows/     CI (build + test on push/PR)
 ```
