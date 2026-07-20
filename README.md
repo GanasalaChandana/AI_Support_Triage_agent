@@ -119,6 +119,21 @@ tokens-per-minute limit — running it unpaced burns through that limit after
 ~4 calls and makes rate-limit errors look like model misclassifications
 (learned this the hard way while building it).
 
+Latest run:
+
+```
+=== Summary ===
+Overall: 11/12 (92%)
+  REPLY      4/5 (80%)
+  ESCALATE   4/4 (100%)
+  TICKET     3/3 (100%)
+```
+
+The one disagreement ("Password reset email not arriving," labeled REPLY,
+agent chose TICKET) is more a dataset labeling ambiguity than a clear model
+error — treating an email-deliverability issue as something worth tracking
+is a defensible call, not obviously wrong.
+
 ## Demo results
 
 Tested end-to-end against Groq (`llama-3.3-70b-versatile`). All four decision
