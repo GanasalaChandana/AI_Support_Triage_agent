@@ -105,7 +105,8 @@ curl http://localhost:8080/tickets/1
 
 Unit tests check the code; they don't check whether the agent actually
 classifies tickets correctly. [`EvalRunner`](src/main/java/com/triage/eval/EvalRunner.java)
-runs a fixed set of ~12 test tickets ([golden-dataset.json](src/main/resources/eval/golden-dataset.json))
+runs a fixed set of 29 test tickets ([golden-dataset.json](src/main/resources/eval/golden-dataset.json),
+roughly balanced across REPLY/ESCALATE/TICKET)
 against the real agent and reports per-category accuracy:
 
 ```bash
@@ -119,20 +120,11 @@ tokens-per-minute limit — running it unpaced burns through that limit after
 ~4 calls and makes rate-limit errors look like model misclassifications
 (learned this the hard way while building it).
 
-Latest run:
-
-```
-=== Summary ===
-Overall: 11/12 (92%)
-  REPLY      4/5 (80%)
-  ESCALATE   4/4 (100%)
-  TICKET     3/3 (100%)
-```
-
-The one disagreement ("Password reset email not arriving," labeled REPLY,
-agent chose TICKET) is more a dataset labeling ambiguity than a clear model
-error — treating an email-deliverability issue as something worth tracking
-is a defensible call, not obviously wrong.
+Earlier run against a smaller 12-case version of this dataset scored 11/12
+(92%), with one defensible disagreement (a password-reset-email case where
+the agent chose to track it rather than just reply) rather than a clear
+model error. Numbers above will be refreshed against the current 29-case
+dataset next run.
 
 ## Demo results
 

@@ -70,5 +70,107 @@
     "subject": "Password reset email not arriving",
     "body": "I requested a password reset but never got the email. I checked spam already, still nothing.",
     "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Did my order arrive?",
+    "body": "Just checking - has ORD-1002 been delivered yet?",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "What carrier do you use?",
+    "body": "For standard shipping, which carrier do you typically use to deliver orders?",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Refund policy for opened items",
+    "body": "I opened the box to look at the item but didn't use it. Does that still qualify for your refund policy?",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "How does expedited shipping compare to standard?",
+    "body": "What's the actual time difference between expedited and standard shipping for my area?",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Order ORD-1001 status",
+    "body": "Wanted to double check - is ORD-1001 still on track for delivery?",
+    "expectedAction": "REPLY"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "I'm filing a complaint with regulators",
+    "body": "This company has ignored my emails for two weeks. I'm filing a complaint with the FTC and my state attorney general if I don't hear back today.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-2",
+    "subject": "I think my personal data was leaked",
+    "body": "I started getting spam emails and calls right after ordering from you. I think my personal data was leaked or sold. I need to know what happened.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "Closing my account after years as a customer",
+    "body": "I've spent thousands of dollars with you over the years. If this billing error isn't fixed, I'm closing my account and posting about this experience publicly.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-2",
+    "subject": "Demanding a manager",
+    "body": "This is the third time my refund has been denied. I've explained the situation three times already. I want to speak to a manager, not another automated response.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Discrimination complaint",
+    "body": "I believe I was treated unfairly by one of your support agents because of my accent. This needs to be taken seriously and reviewed by someone in charge.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "Account locked after failed payments",
+    "body": "My account got locked after a few failed payment attempts, but my card is fine and I've already been charged once. This needs to be looked at immediately, not by a bot.",
+    "expectedAction": "ESCALATE"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "App won't open at all",
+    "body": "The app crashes immediately every time I try to open it, even right after reinstalling.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "Payment error code E-4021",
+    "body": "I keep getting error code E-4021 whenever I try to complete payment, on multiple cards and multiple browsers.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Data not syncing between devices",
+    "body": "My saved items and cart don't sync between my phone and tablet even though I'm logged into the same account on both.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "Broken link in confirmation email",
+    "body": "The 'track your order' link in my confirmation email just leads to a 404 page, on every order this month.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-1",
+    "subject": "Export feature not working",
+    "body": "The 'export my data' button in account settings does nothing when I click it, no download starts.",
+    "expectedAction": "TICKET"
+  },
+  {
+    "customerId": "CUST-3",
+    "subject": "App times out constantly",
+    "body": "The app times out and disconnects every few minutes while I'm browsing, regardless of my internet connection.",
+    "expectedAction": "TICKET"
   }
 ]
